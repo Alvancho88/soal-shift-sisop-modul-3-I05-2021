@@ -1509,6 +1509,7 @@ else if(argc == 2 && strcmp(argv[1], "*") == 0){
 	}
 ```
 # d) If the file doesn't have an extension behind it it will be categorized as Unknown. As for the hidden file name itself, the file also has a prefix.
+
 **Source Code**
 
 ```
@@ -1529,6 +1530,9 @@ char *checkExt(char *dir){
 }
 ```
 # e) In Problem 3e, we are asked to create a thread for each file that will be categorized so that it can run parallel so that the category process can run faster. Therefore we make the number of files according to the number of files to be categorized.
+
+**Problem Found**
+3e is not solved yet
 
 # Documentation
 
