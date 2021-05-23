@@ -831,8 +831,9 @@ If command is download, then we will send the command to server, set the buffer 
 
 # Server
 Initialize things needed, give feedback 
-We use locate to find the file to be dwonloaded
-
+We use locate to find the file to be downloaded
+We will also check the file validity first
+If the file is valid, then it will be downloaded
 
 # Screenshot
 
