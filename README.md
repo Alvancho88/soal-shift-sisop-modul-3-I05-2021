@@ -168,7 +168,7 @@ Directory Structure:
 
 # SOLUTION
 
-**Libraries**
+**Libraries**\n
 Here are the libraries used to solve this problem:
 
 #include <stdio.h> = for standard input-output
