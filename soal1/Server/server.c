@@ -1,170 +1,533 @@
-//Server
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
-//#include <boost/filesystem.hpp>
-
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #define PORT 8080
-int main(int argc, char const *argv[]) {
-    int server_fd, new_socket, valread, valread_2, valread_3;
+#define SIZE 1024
+
+char user[1024];
+ 
+int createServerSocket(struct sockaddr_in *address, int *addrlen);
+int command(char buffer[], int *flag);
+char *pathing(char path1[], char path2[], char result[]);
+int lr(char buffer[], int *flag);
+void addtsv(FILE *files, char nama[], char publisher[], char tahun[], char ekstensi[], char path[]);
+int deletefile(FILE *files, char name[], char source[], char result[]);
+void see(FILE *files, char check[], char display[]);
+void find(FILE *files, char check[], char display[], char buffer[]);
+int locate(char fullpath[], char sy);
+void logging(FILE* log,int tipe, char nama[]);
+ 
+int main()
+{
     struct sockaddr_in address;
-    int opt = 1;
-    int addrlen = sizeof(address);
-    char buffer[1024] = {0};
-    char *hello = "Hello from server";
-	char *tambah = "tambah";
-	char *kurang = "kurang";
-	char *cek = "cek";
-	char *registrasi_berhasil = "Registrasi_berhasil";
-	char *login_berhasil = "Login berhasil";
-	char *pesan_cek= "Jumlah angka sekarang adalah";
-	char *pesan_null = "command tidak sesuai";
-	char *value;
-	int var = 5;
-	char *exit_2 = "Exit";
+    int new_socket, addrlen, flag = 1, info, auth = 0;
+    char delim[] = ":";
+    char buffer[1024];
+    char check[1024];
+    char source[100] = "/home/alvancho/Documents/IO5/Shift_3/Question_1/Server";
+    char result[100];
+    char display[10000];
+    
+    char *c_registers = "register";
+	char *c_login = "login";
+	char *c_add = "add";
+	char *c_download = "download";
+	char *c_delete = "delete";
+	char *c_see = "see";
+	char *c_find = "find";
 
-	FILE *register_id_fptr;
-	FILE *register_password_fptr;
-	FILE *login_fptr;
-	FILE *login_id_fptr;
-	FILE *login_password_fptr;
 
-	char *registers = "register";
-	char *login = "login";
-	char *add = "add";
-	char *download = "download";
-	char *delete = "delete";
-	char *see = "see";
-	char *find = "find";
+    FILE* akun;
+    FILE* files;
+    FILE* log;
+    akun = fopen(pathing(source, "/account.txt", result), "a+");
+    files = fopen(pathing(source, "/files.tsv", result), "a+");
+    log = fopen(pathing(source, "/log.tsv", result), "a+");
+    int status = mkdir(pathing(source, "/FILES", result),0777); //folder FILES
+ 
+    int server_fd = createServerSocket(&address, &addrlen);
+    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0) {
+        perror("accept failed");
+        exit(EXIT_FAILURE);
+    }
+ 
+    while (flag) {
+        while(flag == 1 && auth == 0){
+        	
+            fclose(akun);
+            akun = fopen(pathing(source, "/account.txt", result), "a+");
+            
+            memset(buffer, 0, sizeof(buffer));
+            read(new_socket, buffer, 1024);
+            
+            info = lr(buffer, &flag);
+            send(new_socket, buffer, strlen(buffer), 0);
+            
+            if(info == 1) { //login
+                char login[1024];
+                char pass[1024];
+                
+                memset(buffer, 0, sizeof(buffer)); //id
+                read(new_socket, buffer, 1024);
+                
+                strcpy(login, buffer);
+                send(new_socket, "Expecting pass...", strlen("Expecting pass..."), 0);
+                
+                memset(buffer, 0, sizeof(buffer)); // pass
+                read(new_socket, buffer, 1024);
+                strcpy(pass, buffer);
+                
+                while(fgets(check, sizeof(check), akun))
+                {
+                    char *ptr = strtok(check,delim);
+                    if (strcmp(ptr, login) == 0) 
+                    {
+                        ptr = strtok(NULL,delim);
+                        ptr[strcspn(ptr,"\n")]='\0';
+                        // printf("%d\n",strcmp(ptr, pass));
+                        if (strcmp(ptr, pass) == 0) 
+                        {
+                            sprintf(user,"%s:%s", login, pass);//warning
+                            auth=1;
+                            break;
+                        }
+                    }
+                }
+                if(auth == 1)
+                	send(new_socket, "Login berhasil", strlen("Login berhasil"), 0);
+                else{
+                	send(new_socket, "Login gagal", strlen("Login gagal"), 0);
+				}
+            } else if(info == 2){ //register
+                int pesan = 0;
+                char login[1024];
+                char pass[1024];
+                
+                memset(buffer, 0, sizeof(buffer)); //id
+                read(new_socket, buffer, 1024);
+                
+                strcpy(login, buffer);
+                send(new_socket, "Expecting pass...", strlen("Expecting pass..."), 0);
+                
+                memset(buffer, 0, sizeof(buffer)); // pass
+                read(new_socket, buffer, 1024);
+                strcpy(pass, buffer);
+                
+                while(fgets(check, sizeof(check), akun))
+                {
+                    char *ptr = strtok(check,delim);
+                    puts(ptr);
+                    puts(login);
+                    if (strcmp(ptr, login) == 0) 
+                    {
+                        pesan = 1;
+                        break;
+                    }
+                }
+                if(pesan == 0){
+                    fputs(login, akun);
+                    fputs(":", akun);
+                    fputs(pass, akun);
+                    fputs("\n", akun);
+                }
 
-	char *register_id;
-	char *register_password;
-	char *login_id;
-	char *login_password;
-	char *hold;
-	char *hold_2;
+                if(pesan == 0)
+                send(new_socket, "Berhasil mendaftar.", strlen("Berhasil mendaftar."), 0);
+                else send(new_socket, "Gagal mendaftar.", strlen("Gagal mendaftar."), 0);
+            }
+        }
+        fclose(files);
+        fclose(log);
+        
+        files = fopen(pathing(source, "/files.tsv", result), "a+");
+        log = fopen(pathing(source, "/log.tsv", result), "a+");
+        
+        memset(display, 0, strlen(display));
+        memset(buffer, 0, sizeof(buffer));
+        
+        read(new_socket, buffer, 1024);
+        info = command(buffer, &flag);
+        
+        if(info == 1){
+        	
+            char comp[1024];
+            char nama[1024];
+            char publish[1024];
+            char tahun[1024];
+            char eks[1024];
+            char pathnya[1024];
+            
+            send(new_socket, buffer, strlen(buffer), 0);
+            
+            memset(buffer, 0, sizeof(buffer));
+            read(new_socket, buffer, 1024);
+            strcpy(publish,buffer);
+            send(new_socket, "Tahun publikasi:", strlen("Tahun publikasi:"), 0);
+            
+            memset(buffer, 0, sizeof(buffer));
+            read(new_socket, buffer, 1024);
+            strcpy(tahun,buffer);
+            send(new_socket, "Filepath:", strlen("Filepath:"), 0);
+            
+            memset(buffer, 0, sizeof(buffer));
+            read(new_socket, buffer, 1024);
+            send(new_socket, "Transferring..", strlen("Transferring.."), 0);
+            strcpy(comp,buffer);
+            
+            char *ptr;
+            
+            ptr = comp + locate(comp,'/') + 1;
+            strcpy(nama,ptr);
+            
+            logging(log,1,nama);
+            strcpy(comp,nama);
+            
+            ptr = comp + locate(comp,'.') + 1;
+            strcpy(eks,ptr);
+            
+            char *p = strtok(comp,".");
+            strcpy(nama,p);
+            
+            sprintf(display,"%s/FILES/%s.%s",source,nama,eks);
+            
+            char data[1024];
+            FILE *rcv;
+            rcv = fopen(display,"wb");
+            int n;
+            while (1) {
+                n = recv(new_socket, data, 1024, 0);
+                if (strcmp(data,"END")==0){
+                break;
+                }
+                fwrite(data,1,sizeof(data),rcv);
+                // puts("...");
+                bzero(data, 1024);
+            }
+            fclose(rcv);
+            addtsv(files,nama,publish,tahun,eks,display);
+            continue;
+        } else if(info == 2){
+            sprintf(buffer, "Processing..");
+            send(new_socket, buffer, strlen(buffer), 0);
+            memset(buffer, 0, sizeof(buffer));
+            read(new_socket, buffer, 1024);
+            if(deletefile(files,buffer,source,result) == 1)
+            logging(log,2,buffer);
+            fclose(files);
+            remove(pathing(source, "/files.tsv", result));
 
-	char *add_filename;
-	char *download_filename;
-	char *delete_filename;
-	char *see_filename;
-	char *find_filename;
-	char *publisher;
-	char *publication_year;
-	char *filepath;
+            char result2[100];
+            strcpy(result2,pathing(source, "/files.tsv", result));
+            rename(pathing(source, "/temp.tsv", result), result2);
 
-      
-    if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+            files = fopen(pathing(source, "/files.tsv", result), "a+");
+            sprintf(buffer, "Processed..");
+        } else if(info == 3){
+            see(files, check, display);
+            send(new_socket, display, strlen(display), 0);
+            continue;
+        } else if(info == 4){
+            sprintf(buffer, "Finding..");
+            send(new_socket, buffer, strlen(buffer), 0);
+            memset(buffer, 0, sizeof(buffer));
+            read(new_socket, buffer, 1024);
+            find(files, check, display, buffer);
+            send(new_socket, display, strlen(display), 0);
+            continue;
+        } else if(info == 5){
+            int muncul =0;
+            
+            sprintf(buffer, "Downloading..");
+            send(new_socket, buffer, strlen(buffer), 0);
+            memset(buffer, 0, sizeof(buffer));
+            
+            read(new_socket, buffer, 1024);
+            sprintf(display,"%s/FILES/%s",source,buffer);
+            
+            char *p;
+            char na[1024],nana[1024], eks[1024];
+            
+            strcpy(na,buffer);
+            p = buffer + locate(buffer,'.');
+            strcpy(eks,p);
+            
+            char *pna = strtok(na,".");
+            strcpy(nana,pna);
+            
+            while(fgets(check, 1024 , files)) //check validity
+            {
+                int i = 0;
+                char comp[1024];
+                
+                strcpy(comp,check);
+                
+                char iter[5][1024];
+                char *ptr = strtok(comp,"\t");
+
+                while( ptr != NULL){
+                    strcpy(iter[i++],ptr);
+                    ptr = strtok(NULL,"\t");
+                }
+                
+                if (strcmp(iter[0], nana) == 0 && strcmp(iter[3], eks) == 0) 
+                {
+                    muncul++;
+                }
+            }
+            fclose(files);
+            files = fopen(pathing(source, "/files.tsv", result), "a+");
+            if(muncul == 0) send(new_socket, "END", sizeof("END"), 0);
+            if(muncul > 0){
+                FILE *fp;
+                fp = fopen(display,"rb");
+                if (fp == NULL) {
+                    perror("[-]Error in reading file.");
+                    exit(1);
+                }
+                char data[SIZE] = {0};
+                int n;
+                do{
+                    n = fread(data, 1,1024, fp);
+                    send(new_socket, data, sizeof(data), 0);
+                    // puts(",,,");
+                } while(n == sizeof(data));
+                memset(data, 0, sizeof(data));
+                fclose(fp);
+                send(new_socket, "END", sizeof("END"), 0);
+            } else {
+                sprintf(buffer, "File tidak valid, mohon dicek kembali");
+            }
+            continue;
+        }
+        send(new_socket, buffer, strlen(buffer), 0);
+        // fclose(files);
+        // files = fopen(pathing(source, "/files.tsv", result), "a+");
+    }
+
+    fclose(akun);
+    fclose(files);
+    return 0;
+}
+
+void logging(FILE* log,int tipe, char nama[]){
+    char result[1024];
+    if(tipe == 1){
+        sprintf(result,"Tambah : %s (%s)\n",nama,user);//warning
+        fputs(result,log);
+    } else if(tipe == 2){
+        sprintf(result,"Hapus : %s (%s)\n",nama,user);//warning
+        fputs(result,log);
+    }
+}
+
+int locate(char fullpath[], char sy){
+    int len = strlen(fullpath);
+    while(--len){
+        if(fullpath[len] == sy) break;
+    }
+    return len;
+}
+
+void find(FILE *files, char check[], char display[], char buffer[]){
+    int muncul = 0;
+    while(fgets(check, 1024 , files)!= NULL)
+    {
+        if(feof(files)){
+            sprintf(display + strlen(display),"files.tsv kosong");
+            return;
+        }
+        int i = 0;
+        char comp[1024];
+        strcpy(comp,check);
+        char iter[5][1024];
+        char *ptr = strtok(comp,"\t");
+        if(strcmp(buffer, ptr) == 0){
+            muncul++;
+        }
+    }
+    fclose(files);
+    files = fopen(pathing("/home/alvancho/Documents/IO5/Shift_3/Question_1/Server", "/files.tsv", check), "a+");
+    if(muncul > 0)
+    while(fgets(check, 1024 , files))
+    {
+        int i = 0;
+        char comp[1024];
+        strcpy(comp,check);
+        char iter[5][1024];
+        char *ptr = strtok(comp,"\t");
+        if(strcmp(buffer, ptr) != 0) continue;
+
+        while( ptr != NULL){
+            strcpy(iter[i++],ptr);
+            ptr = strtok(NULL,"\t");
+        }
+        
+        sprintf(display + strlen(display),"\nNama:%s\n",iter[0]);
+        sprintf(display + strlen(display),"Publisher:%s\n",iter[1]);
+        sprintf(display + strlen(display),"Tahun publishing:%s\n",iter[2]);
+        sprintf(display + strlen(display),"Ekstensi File:%s\n",iter[3]);
+        sprintf(display + strlen(display),"Filepath:%s",iter[4]);
+    }
+    else sprintf(display + strlen(display),"Nama file tidak ditemukan");
+}
+
+void see(FILE *files, char check[], char display[]){
+    int muncul = 0;
+    while(fgets(check, 1024 , files) != NULL)
+    {
+        int i = 0;
+        char comp[1024];
+        strcpy(comp,check);
+        char iter[5][1024];
+        char *ptr = strtok(comp,"\t");
+
+        while( ptr != NULL){
+            strcpy(iter[i++],ptr);
+            ptr = strtok(NULL,"\t");
+        }
+        muncul++;
+        sprintf(display + strlen(display),"\nNama:%s\n",iter[0]);
+        sprintf(display + strlen(display),"Publisher:%s\n",iter[1]);
+        sprintf(display + strlen(display),"Tahun publishing:%s\n",iter[2]);
+        sprintf(display + strlen(display),"Ekstensi File:%s\n",iter[3]);
+        sprintf(display + strlen(display),"Filepath:%s",iter[4]);
+    }
+    if(muncul == 0) sprintf(display + strlen(display),"Nama file tidak ditemukan");
+}
+
+int deletefile(FILE *files, char name[], char source[], char result[]){
+    int flag=0;
+    char check[1024];
+    FILE *temp;
+    temp = fopen(pathing(source, "/temp.tsv", result), "a+");
+    char *p;
+    char na[1024],nana[1024], eks[1024];
+    strcpy(na,name);
+    p = name + locate(name,'.') +1;
+    strcpy(eks,p);
+    char *pna = strtok(na,".");
+    strcpy(nana,pna);
+    // puts(nana);
+    //     puts(eks);
+    while(fgets(check, sizeof(check), files) != NULL)
+    {
+        int i = 0;
+        char comp[1024];
+        
+        strcpy(comp,check);
+        
+        char iter[5][1024];
+        char *ptr = strtok(comp,"\t");
+
+        while( ptr != NULL){
+            strcpy(iter[i++],ptr);
+            ptr = strtok(NULL,"\t");
+        }
+        
+        if (strcmp(iter[0], nana) == 0 && strcmp(iter[3], eks) == 0) 
+        {
+            flag=1;
+            continue;
+        }
+        fputs(check, temp);
+    }
+    fclose(temp);
+
+    char result3[100];
+    strcpy(result3,pathing(pathing(pathing(source, "/FILES/", result), "old-", result),name,result));
+    rename( pathing(pathing(source, "/FILES/", result), name, result), result3);
+
+    return flag;
+}
+
+void addtsv(FILE *files, char nama[], char publisher[], char tahun[], char ekstensi[], char path[]){
+    fputs(nama, files);
+    fputc("\t", files);
+    fputs(publisher, files);
+    fputc("\t", files);
+    fputs(tahun, files);
+    fputc("\t", files);
+    fputs(ekstensi, files);
+    fputc("\t", files);
+    fputs(path, files);
+    fputc("\t", files);
+}
+
+char *pathing(char path1[], char path2[], char result[]){
+    strcpy(result, path1);
+    strcat(result, path2);
+    return result;
+}
+
+int lr(char buffer[], int *flag)
+{
+    if (strcmp(buffer, "login") == 0) {
+        sprintf(buffer, "Expecting id...");
+        return 1;
+    }
+    else if (strcmp(buffer, "register") == 0) {
+        sprintf(buffer, "Expecting id...");
+        return 2;
+    } else if(strcmp(buffer, "exit") == 0){
+        (*flag) = 0;
+        sprintf(buffer, "Exiting..");
+        return 3;
+    }
+    return 0;
+}
+ 
+int command(char buffer[], int *flag)
+{
+    if (strcmp(buffer, "add") == 0) {
+        sprintf(buffer, "Publisher:");
+        return 1;
+    } else if(strcmp(buffer, "delete") == 0){
+        return 2;
+    } else if(strcmp(buffer, "see") == 0){
+        return 3;
+    } else if(strcmp(buffer, "find") == 0){
+        return 4;
+    } else if(strcmp(buffer, "download") == 0){
+        return 5;
+    } else if(strcmp(buffer, "exit") == 0){
+        (*flag) = 0;
+        sprintf(buffer, "Exiting..");
+        return 0;
+    }
+    return 0;
+}
+ 
+int createServerSocket(struct sockaddr_in *address, int *addrlen)
+{
+    int fd, opt = 1;
+ 
+    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
-      
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
         perror("setsockopt");
         exit(EXIT_FAILURE);
     }
-
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons( PORT );
-      
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address))<0) {
+ 
+    address->sin_family = AF_INET;
+    address->sin_addr.s_addr = INADDR_ANY;
+    address->sin_port = htons(PORT);
+    *addrlen = sizeof(*address);
+ 
+    if (bind(fd, (struct sockaddr *)address, *addrlen) < 0) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-
-    if (listen(server_fd, 3) < 0) {
+    if (listen(fd, 3) < 0) {
         perror("listen");
         exit(EXIT_FAILURE);
     }
-
-    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0) {
-        perror("accept");
-        exit(EXIT_FAILURE);
-    }
-
-//listen()
-//while (1) {
-//    newsockfd = accept();
-//    pid = fork();
-//    if (pid == 0) { // client process
-//        close(sockfd);
-//        // do some process - read and write
-//        exit(0);
-//    } else { // parent process
-//        close(newsockfd);
-//    }
-//}
-
-    //valread = read( new_socket , buffer, 1024);
-    //printf("%s\n",buffer );
-    //send(new_socket , hello , strlen(hello) , 0 );
-    //printf("Hello message sent\n");
-	while(1){
-		//boost::filesystem::create_directories("/home/alvancho/Documents/IO5/Shift_3/Soal_1/Server");
-		//boost::filesystem::path p("/home/alvancho/Documents/IO5/Shift_3/Soal_1/Server");
-		//boost::filesystem::create_directory(p);
-		valread = read (new_socket , buffer, 1024);
-		//printf("test");
-		if(strcmp(buffer,registers)==0){
-			valread_2 = read (new_socket , buffer, 1024);
-			register_id_fptr = fopen("/home/alvancho/Documents/IO5/Shift_3/Soal_1/Server/account.txt","a");
-			fprintf(register_id_fptr,"%s:",buffer);
-			fclose(register_id_fptr);
-
-			valread_3 = read (new_socket , buffer, 1024);
-			register_password_fptr = fopen("/home/alvancho/Documents/IO5/Shift_3/Soal_1/Server/account.txt","a");
-			fprintf(register_password_fptr,"%s\n",buffer);
-			fclose(register_password_fptr);
-
-			send(new_socket , registrasi_berhasil , strlen(registrasi_berhasil) , 0 );
-		}
-		else if(strcmp(buffer,login)==0){
-			valread_2 = read (new_socket , buffer, 1024);
-			register_id_fptr = fopen("/home/alvancho/Documents/IO5/Shift_3/Soal_1/Server/account.txt","r");
-			rewind(login_fptr);
-			while(buffer!=hold){
-				fscanf(login_fptr,"%[^\n]:",hold);
-				fseek(login_fptr, strlen(buffer)+1, SEEK_SET );
-			}
-			fclose(login_fptr);
-
-			//valread_3 = read (new_socket , buffer, 1024);
-			//register_password_fptr = fopen("/home/alvancho/Documents/IO5/Shift_3/Soal_1/Server/account.txt","a");
-			//rewind(register_password_fptr);
-			//fscanf(register_password_fptr,"%s\n",hold_2;
-			//fclose(register_password_fptr);
-
-			send(new_socket , login_berhasil , strlen(login_berhasil) , 0 );
-		}
-		else if(strcmp(buffer,download)==0){
-			//printf("Please enter the filename (ex:TEMPfile.pdf): \n");
-			//scanf("%s", find_filename);
-		}
-		else if(strcmp(buffer,delete)==0){
-			//printf("Please enter the filename (ex:TEMPfile.pdf): \n");
-			//scanf("%s", find_filename);
-		}
-		else if(strcmp(buffer,see)==0){
-			//printf("Please enter the filename (ex:TEMPfile.pdf): \n");
-			//scanf("%s", find_filename);
-		}
-		else if(strcmp(buffer,find)==0){
-			//printf("Please enter the filename (ex:TEMPfile.pdf): \n");
-			//scanf("%s", find_filename);
-		}
-//		else if(strcmp(buffer,cek)==0){
-//			sprintf(value, "%d", var);
-//			send(new_socket , value , strlen(value) , 0 );
-//			printf("%s",value);
-//		}
-//		else{
-//			send(new_socket , pesan_null , strlen(pesan_null) , 0 );
-//		}
-		memset(buffer,0,1024);
-	}
-    return 0;
+    return fd;
 }
