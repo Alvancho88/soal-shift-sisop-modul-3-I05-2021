@@ -26,7 +26,7 @@ the first client to exit the application to be able to login and use the applica
 Keverk wanted the file that stores the id and password named account.txt with
 the following format:
 
-# account.txt
+account.txt
 ```
 id:password
 id2:password2
@@ -554,6 +554,11 @@ We will use info flag for login/register check. In the case of login, initialize
 In the case of register, we will initialize login, pass, and pesan first. Then we set the buffer memory to zero and then read from client, keep the input, and prompt client for password, do the same thing. We will check if the input is the same as the account before or not and give it a flag. If it is not the same then 0 flag and input the new id and password into account.txt. Lastly send message status message to client.
 
 # Screenshots
+
+![account txt](https://user-images.githubusercontent.com/61174498/119256877-fa3e6080-bbec-11eb-8f2b-d5bc219c4add.png)
+
+![login (2)](https://user-images.githubusercontent.com/61174498/119256894-0fb38a80-bbed-11eb-8f61-f5e6ce8c0e73.png)
+
 
 # B.)
 
