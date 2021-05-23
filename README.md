@@ -837,7 +837,7 @@ else if(info == 5){
 ```
 
 # Explanation
-Here is the download procedure. use fopen mode which rb and wb
+Here is the download procedure. using fopen mode which rb and wb
 **Client**
 If command is download, then we will send the command to server, set the buffer memory to zero and then read response from server and output it.
 
@@ -1098,11 +1098,11 @@ running.log is created at the beginning of the code. And we insert the logging (
 
 
 # Problems
+```
 Ubuntu crash and need to be reinstalled
 Root drive is running out of disk space
 Segmentation fault (core dumped)
-
-
+```
 
 # In-Built Function
 ```
