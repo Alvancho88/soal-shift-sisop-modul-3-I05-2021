@@ -168,6 +168,7 @@ Directory Structure:
 
 # SOLUTION
 
+**Libraries**
 Here are the libraries used to solve this problem:
 
 #include <stdio.h> = for standard input-output
@@ -197,7 +198,7 @@ Here are the libraries used to solve this problem:
 Define server port and SIZE for later use
 
 
-Server
+**Server**
 Server Function Initialization
 ```
 int createServerSocket(struct sockaddr_in *address, int *addrlen);
@@ -348,7 +349,7 @@ int locate(char fullpath[], char sy){
 ```
 
 
-Client
+**Client**
 Client Function Initialization
 ```
 int createClientSocket(struct sockaddr_in *address, struct sockaddr_in *serv_addr);
@@ -423,7 +424,7 @@ Client Input (User Input)
 
 # A.)
 
-# Source Code
+**Source Code**
 
 *Server
 ```
@@ -546,14 +547,14 @@ int lr(char buffer[], int *flag)
         printf("%s\n", command);
 ```
 
-# Explanation
+**Explanation**
 First, we close previous possible active account, then we use fopen to write and add account.txt itselft if it isn't present yet. Set bubber memory to zero. Read input from client. Then we use the lr() function to give status message to client about the login, register or exit.
 
 We will use info flag for login/register check. In the case of login, initialize the login id and pass. Set the buffer memory to zero. Read id, copy, and send the next password prompt to client. Set memory to zero, read from client and copy and keep. Then we will check if the login id and password match any of the register id and password. If the login id and password match, then it will set the auth flag to 1 and send message that the login is successful, else the login failed.
 
 In the case of register, we will initialize login, pass, and pesan first. Then we set the buffer memory to zero and then read from client, keep the input, and prompt client for password, do the same thing. We will check if the input is the same as the account before or not and give it a flag. If it is not the same then 0 flag and input the new id and password into account.txt. Lastly send message status message to client.
 
-# Screenshots
+**Screenshot**
 
 ![account txt](https://user-images.githubusercontent.com/61174498/119256877-fa3e6080-bbec-11eb-8f2b-d5bc219c4add.png)
 
@@ -562,7 +563,7 @@ In the case of register, we will initialize login, pass, and pesan first. Then w
 
 # B.)
 
-# Source Code
+**Source Code**
 
 *Server
 ```
@@ -601,19 +602,19 @@ Folder creation
 int status = mkdir(pathing(source, "/FILES", result),0777); //folder FILES
 ```
 
-# Explanation
+**Explanation**
 First, we close previous opened files or log and then initialize and open the files.tsv and set to zero. We will then read input from client and input value to info from command() function which checks command from client
 Folder FILES are made, automatically when the server is started
 Organized by variable files. then create a procedure for adding to files.tsv using addtsv (). Every changes on FILES will be recorded in log with tsv file containing the record of filename, publisher, publishing date, and filepath
 
-# Screenshot
+**Screenshot**
 
 ![Habis_Start](https://user-images.githubusercontent.com/61174498/119256946-543f2600-bbed-11eb-911e-48694525edc2.png)
 
 
 # C.)
 
-Source Code
+**Source Code**
 
 *Server
 ```
@@ -726,21 +727,21 @@ Source Code
         }
 ```
 
-# Explanation
-# Client
+**Explanation**
+**Client**
 If the command input from the client is add, then client will send the command to server and set the buffer memory to zero. It will then read the input and output the input from server. After that it will check the input again from user and send it to server. This process is done until filepath. After all of that, we will check if file exist and give tsv format for ot to be send to server.
 Server
 The add command will produce info = 1. the procedure is held by the code section above.
-# Sever
+**Server**
 First, we initialize all things we need. Then we set the buffer memory to zero, read the input from client, copy and keep and send back to client. Initialize pointer and locate the comp. and also give a new record to log
-# Screenshot
+**Screenshot**
 
 ![download_see](https://user-images.githubusercontent.com/61174498/119256980-73d64e80-bbed-11eb-8da1-82e35cde2954.png)
 
 
 # D.)
 
-# Source Code
+**Source Code**
 
 *Server
 ```
@@ -834,18 +835,18 @@ else if(info == 5){
             continue;
 ```
 
-# Explanation
+**Explanation**
 Here is the download procedure. use fopen mode which rb and wb
-# Client
+**Client**
 If command is download, then we will send the command to server, set the buffer memory to zero and then read response from server and output it.
 
-# Server
+**Server**
 Initialize things needed, give feedback 
 We use locate to find the file to be downloaded
 We will also check the file validity first
 If the file is valid, then it will be downloaded
 
-# Screenshot
+**Screenshot**
 
 ![download_see](https://user-images.githubusercontent.com/61174498/119257022-a2542980-bbed-11eb-87b1-4a744132ccb2.png)
 
@@ -853,7 +854,7 @@ If the file is valid, then it will be downloaded
 
 # E.)
 
-Source Code
+**Source Code**
 
 *Server
 ```
@@ -924,10 +925,10 @@ int deletefile(FILE *files, char name[], char source[], char result[]){
 }
 ```
 
-Explanation
+**Explanation**
 It is handled by the deleteFile () function and on main it is also available.
 
-Screenshot
+**Screenshot**
 
 Before
 
@@ -946,7 +947,7 @@ After
 
 # F.)
 
-Source Code
+**Source Code**
 
 *Server
 ```
@@ -984,17 +985,17 @@ void see(FILE *files, char check[], char display[]){
 }
 ```
 
-Explanation
+**Explanation**
 Handled by the see () function and played there too.
 
-Screenshot
+**Screenshot**
 
 ![download_find](https://user-images.githubusercontent.com/61174498/119257041-c0ba2500-bbed-11eb-993d-e9fdedcff743.png)
 
 
 # G.)
 
-Source Code
+**Source Code**
 
 *Server
 ```
@@ -1055,17 +1056,17 @@ void find(FILE *files, char check[], char display[], char buffer[]){
 }
 ```
 
-Explanation
+**Explanation**
 Handled by the find () function and on main are also available. first, you must first check whether it is in files.tsv.
 
-Screenshot
+**Screenshot**
 
 ![login_find](https://user-images.githubusercontent.com/61174498/119257053-ce6faa80-bbed-11eb-90e0-f034e4a0c8cb.png)
 
 
 # H.)
 
-Source Code
+**Source Code**
 
 *Server
 ```
@@ -1087,20 +1088,22 @@ void logging(FILE* log,int tipe, char nama[]){
     log = fopen(pathing(source, "/log.tsv", result), "a+");
 ```
 
-Explanation
+**Explanation**
 running.log is created at the beginning of the code. And we insert the logging () function when the add and delete commands are called.
 
-Screenshot
+**Screenshot**
 
 ![After_Deletion_Log](https://user-images.githubusercontent.com/61174498/119257065-dc253000-bbed-11eb-9a3c-a5640abeb3c1.png)
 
 
-Problems
+**Problems**
 
-Notable inbuilt function:
+**SIn-Built Function**
+```
 strtok() = The C library function char *strtok(char *str, const char *delim) breaks string str into a series of tokens using the delimiter delim.
 strcspn() = The C library function size_t strcspn(const char *str1, const char *str2) calculates the length of the initial segment of str1, which consists entirely of characters not in str2.
 bzero() = The bzero() function erases the data in the n bytes of the memorystarting at the location pointed to by s, by writing zeros (bytes containing '\0') to that area.
+```
 
 # Question 2
 
