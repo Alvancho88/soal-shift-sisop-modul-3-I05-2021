@@ -1,7 +1,13 @@
 # soal-shift-sisop-modul-3-I05-2021
 Repository for Shift 3 Lab Work
 
-# SOAL 1
+**Rafi Akbar Rafsanjani - 05111942000004**
+
+**Agustinus Aldi Irawan Rahardja - 05111942000010**
+
+**Muhammad Rafi Hayla Arifa - 05111942000014**
+
+# Question 1
 Keverk is a famous ambitious person in his colleagues. Before he became the head of
 department in HTMC, he has done a project which tells him to make a book server
 database. This project is required, so that it could be used by the app owner and is
@@ -1056,3 +1062,278 @@ Notable inbuilt function:
 strtok() = The C library function char *strtok(char *str, const char *delim) breaks string str into a series of tokens using the delimiter delim.
 strcspn() = The C library function size_t strcspn(const char *str1, const char *str2) calculates the length of the initial segment of str1, which consists entirely of characters not in str2.
 bzero() = The bzero() function erases the data in the n bytes of the memorystarting at the location pointed to by s, by writing zeros (bytes containing '\0') to that area.
+
+# Question 2
+
+Crypto (you) is Loba's friend. One morning, Crypto saw Loba who was overwhelmed with his boss's assignment. Since Crypto is such a challenging person, he wanted to help Loba with his job. The details of the assignment are:
+
+# a) Create a matrix multiplication program (4x3 and 3x6) and then display the results. The matrix will contain the numbers 1-20 (no need to create a number filter).
+
+**Source Code**
+
+```
+#include <stdio.h>
+#include <string.h>
+#include <pthread.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+int main()
+{
+    int matrix_4x3[4][3], matrix_3x6[3][6], result[4][6];
+    int i, j, k;
+    key_t key = 1234;
+    int (*value)[6];
+    int shmid = shmget(key, sizeof(int[4][6]), IPC_CREAT | 0666);
+    value = shmat(shmid, NULL, 0);
+
+    printf("Enter elemets of matrix 4x3:\n");
+    for(i = 0; i < 4; i++)
+    {
+        for(j = 0; j < 3; j++)
+        {
+            scanf("%d", &matrix_4x3[i][j]);
+        }
+    }
+
+    printf("Enter elements of matrix 3x6:\n");
+    for(i = 0; i < 3; i++)
+    {
+        for(j = 0; j < 6; j++)
+        {
+            scanf("%d", &matrix_3x6[i][j]);
+        }
+    }
+
+    int val = 0;
+    for(i = 0; i < 4; i++)
+    {
+        for(j = 0; j < 6; j++)
+        {
+            for(k = 0; k < 3; k++)
+            {
+                val += matrix_4x3[i][k] * matrix_3x6[k][j];
+            }
+            value[i][j] = val;
+            result[i][j] = val;
+            val = 0;
+        }
+    }
+
+    printf("Matrix Multiplication:\n");
+    for(i = 0; i < 4; i++)
+    {
+        for(j = 0; j < 6; j++)
+        {
+            value[i][j] = result[i][j];
+            printf("%d\t", value[i][j]);
+        }
+        printf("\n");
+    }
+    
+    shmdt(value);
+    shmctl(shmid, IPC_RMID, NULL);
+
+    return 0;
+}
+```
+
+**Explanation**
+
+```
+key_t key = 1234;
+int (*value)[6];
+int shmid = shmget(key, sizeof(int[4][6]), IPC_CREAT | 0666);
+value = shmat(shmid, NULL, 0);
+```
+
+First thing we need a numeric key to be assigned to the returned shared memory segment. Then we use ```shmget``` to obtain the access to a shared memory segment and following by their parameters that are the key as the numeric key, size as the size of the requested shared memory, and the flag that use to specify the way that the shared memory will be used. We write the ```IPC_CREAT | 0666``` in order to creating and granting read and write access. Then we will attach the shared memory segment with the shared memory identifier and save it to the value by using the ```shmat```.
+
+```
+printf("Enter elemets of matrix 4x3:\n");
+for(i = 0; i < 4; i++)
+{
+  for(j = 0; j < 3; j++)
+  {
+    scanf("%d", &matrix_4x3[i][j]);
+  }
+}
+
+printf("Enter elements of matrix 3x6:\n");
+for(i = 0; i < 3; i++)
+{
+  for(j = 0; j < 6; j++)
+  {
+    scanf("%d", &matrix_3x6[i][j]);
+  }
+}
+```
+
+Next, we make a loop in order to ask for the input of the elements by each matrix.
+
+```
+int val = 0;
+for(i = 0; i < 4; i++)
+{
+  for(j = 0; j < 6; j++)
+  {
+    for(k = 0; k < 3; k++)
+    {
+      val += matrix_4x3[i][k] * matrix_3x6[k][j];
+    }
+    value[i][j] = val;
+    result[i][j] = val;
+    val = 0;
+  }
+}
+```
+
+Then, we do the operation to find the matrix multiplication from both matrices. After get the val, we stored it in value and result array. We also need to set val to 0 again in order to be able to recalculate the correct val in the next calculation.
+
+```
+printf("Matrix Multiplication:\n");
+for(i = 0; i < 4; i++)
+{
+  for(j = 0; j < 6; j++)
+  {
+    value[i][j] = result[i][j];
+    printf("%d\t", value[i][j]);
+  }
+  printf("\n");
+}
+```
+
+We continue to display the value of the matrix multiplication that we got from the previous actions.
+
+```
+shmdt(value);
+shmctl(shmid, IPC_RMID, NULL);
+```
+
+At last, we detach the share memory segment by using the ```shmdt``` and alter the permissions and other characteristics also to destroy or remove the shared memory segment by using the ```shmctl(shmid, IPC_RMID, NULL)```.
+
+**Documentation**
+
+<img width="867" alt="Screen Shot 2021-05-21 at 05 11 03" src="https://user-images.githubusercontent.com/74056954/119055274-f34bfe00-b9f2-11eb-9312-4c7cf350118e.png">
+
+## c) For fear of lags in the process of helping Loba, Crypto also created a program (soal2c.c) to check the top 5 processes consuming computer resources with the command  “ps aux | sort -nrk 3,3 | head -5” (Note !: You must use IPC Pipes).
+
+**Source Code**
+
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main()
+{
+    int p1[2];
+    int p2[2];
+
+    char *execv1[] = {"ps", "aux", NULL};
+    char *execv2[] = {"sort", "-nrk", "3,3", NULL};
+    char *execv3[] = {"head", "-5", NULL};
+
+    pipe(p1);
+    if(fork() == 0)
+    {
+        close(p1[0]);
+        dup2(p1[1], 1);
+        close(p1[1]);
+        execv("/usr/bin/ps", execv1);
+    }
+    close(p1[1]);
+
+    pipe(p2);
+    if(fork() == 0)
+    {
+        close(p2[0]);
+        dup2(p1[0], 0);
+        close(p1[0]);
+        dup2(p2[1], 1);
+        close(p2[1]);
+        execv("/usr/bin/sort", execv2);
+    }
+    close(p1[0]);
+    close(p2[1]);
+
+    if(fork() == 0)
+    {
+        dup2(p2[0], 0);
+        close(p2[0]);
+        execv("/usr/bin/head", execv3);
+    }
+    close(p2[0]);
+
+    return 0;
+}
+```
+**Explanation**
+
+```
+int p1[2];
+int p2[2];
+
+char *execv1[] = {"ps", "aux", NULL};
+char *execv2[] = {"sort", "-nrk", "3,3", NULL};
+char *execv3[] = {"head", "-5", NULL};
+```
+
+First we need to initialize the pipe. We also make a pointer of the process execution to make us easier later on. The question ask 3 command to be execute. There are ```ps aux```, ```sort -nrk 3,```, and ``` head -5```. That's why we create the pointer of ```execv1[]```, ```execv2[]```, and ```execv3[]``` to not make it complicated and confused.
+
+```
+pipe(p1);
+if(fork() == 0)
+{
+  close(p1[0]);
+  dup2(p1[1], 1);
+  close(p1[1]);
+  execv("/usr/bin/ps", execv1);
+}
+close(p1[1]);
+```
+
+Now, we start to pipe and fork for the first process.
+
+```close(p1[0])``` is to close the read section of pipe 1, followed by redirecting the process output from standard output to the write section of pipe 1 with ```dup2(p1[1], 1)```, then we close the write section of pipe 1 with use ```close(p1[1])```, then to run the ```ps aux``` process we use ```execv("/usr/bin/ps", execv1)```, then we close it by closing the write part of pipe 1.
+
+```
+pipe(p2);
+if(fork() == 0)
+{
+  close(p2[0]);
+  dup2(p1[0], 0);
+  close(p1[0]);
+  dup2(p2[1], 1);
+  close(p2[1]);
+  execv("/usr/bin/sort", execv2);
+}
+close(p1[0]);
+close(p2[1]);
+```
+
+Then, we move on to the second process.
+```close(p2[0])``` itself is to close the read from pipe 2, then here we redirect the standard input pipe 2 to the read pipe 1 section with ```dup2(p1[0], 0)``` and we use ```close(p1[0])``` to close the read from pipe 1 and we also redirect standard output pipe 2 to write pipe 2 with ```dup2(p2[1], 1)``` and close the write from pipe 2 with ```close(p2[1])```. Then to run the ```sort -nrk 3,3``` process,  we use ```execv("/ usr/bin/sort", execv2)``` and ends by closing the read pipe 1 and writing pipe 2 with ```close(p1[0])``` and ```close(p2[1])```.
+
+```
+if(fork() == 0)
+{
+  dup2(p2[0], 0);
+  close(p2[0]);
+  execv("/usr/bin/head", execv3);
+}
+close(p2[0]);
+```
+
+Then for the final process. 
+We redirect the standard input to the read section of pipe 2 followed by closing the read section of the pipe. and to do the ```head -5``` we use ```execv("/usr/bin/head", execv3)``` which we end by closing the read section of pipe 2.
+
+**Documentation**
+
+<img width="861" alt="Screen Shot 2021-05-21 at 05 30 56" src="https://user-images.githubusercontent.com/74056954/119056927-ba615880-b9f5-11eb-8c0e-2aeb669f90db.png">
+
+**Problem Found**
+
+I confuse don't know how to take the value that I already got from the Question A and put it to the code in Question B.
