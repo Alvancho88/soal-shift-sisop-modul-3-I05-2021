@@ -1529,3 +1529,21 @@ char *checkExt(char *dir){
 }
 ```
 # e) In Problem 3e, we are asked to create a thread for each file that will be categorized so that it can run parallel so that the category process can run faster. Therefore we make the number of files according to the number of files to be categorized.
+
+# Documentation
+
+**3A**
+
+![S__25468962](https://user-images.githubusercontent.com/61174498/119261763-003f3c00-bc03-11eb-9718-36e4e7cd8cee.jpg)
+
+**3B**
+
+![S__25468964](https://user-images.githubusercontent.com/61174498/119261768-07664a00-bc03-11eb-901a-12ab67006c2b.jpg)
+
+**3C**
+
+![S__25468966](https://user-images.githubusercontent.com/61174498/119261770-0af9d100-bc03-11eb-98ab-8c26a5fde523.jpg)
+
+**3D**
+
+![S__25468968](https://user-images.githubusercontent.com/61174498/119261772-0e8d5800-bc03-11eb-990d-c18ca904f75b.jpg)
