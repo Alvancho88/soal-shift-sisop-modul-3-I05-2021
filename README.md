@@ -608,6 +608,9 @@ Organized by variable files. then create a procedure for adding to files.tsv usi
 
 # Screenshot
 
+![Habis_Start](https://user-images.githubusercontent.com/61174498/119256946-543f2600-bbed-11eb-911e-48694525edc2.png)
+
+
 # C.)
 
 Source Code
@@ -732,6 +735,8 @@ The add command will produce info = 1. the procedure is held by the code section
 First, we initialize all things we need. Then we set the buffer memory to zero, read the input from client, copy and keep and send back to client. Initialize pointer and locate the comp. and also give a new record to log
 # Screenshot
 
+![download_see](https://user-images.githubusercontent.com/61174498/119256980-73d64e80-bbed-11eb-8da1-82e35cde2954.png)
+
 
 # D.)
 
@@ -842,6 +847,10 @@ If the file is valid, then it will be downloaded
 
 # Screenshot
 
+![download_see](https://user-images.githubusercontent.com/61174498/119257022-a2542980-bbed-11eb-87b1-4a744132ccb2.png)
+
+![Download_Result](https://user-images.githubusercontent.com/61174498/119257149-38884f80-bbee-11eb-98ee-c804b316d306.png)
+
 # E.)
 
 Source Code
@@ -920,6 +929,21 @@ It is handled by the deleteFile () function and on main it is also available.
 
 Screenshot
 
+Before
+
+![After_Download](https://user-images.githubusercontent.com/61174498/119257089-f232f080-bbed-11eb-94f6-279b0cb82165.png)
+
+![Before_Deletion_Log](https://user-images.githubusercontent.com/61174498/119257132-24dce900-bbee-11eb-8244-837da3b7fb0a.png)
+
+After
+
+![After_Deletion_TSV](https://user-images.githubusercontent.com/61174498/119257115-0f67bf00-bbee-11eb-9b26-b623c558ca72.png)
+
+![After_Deletion](https://user-images.githubusercontent.com/61174498/119257121-155da000-bbee-11eb-9897-81cf14f1574f.png)
+
+![After_Deletion_Log](https://user-images.githubusercontent.com/61174498/119257144-2efee780-bbee-11eb-8455-5ab25c0c0431.png)
+
+
 # F.)
 
 Source Code
@@ -964,6 +988,9 @@ Explanation
 Handled by the see () function and played there too.
 
 Screenshot
+
+![download_find](https://user-images.githubusercontent.com/61174498/119257041-c0ba2500-bbed-11eb-993d-e9fdedcff743.png)
+
 
 # G.)
 
@@ -1033,6 +1060,9 @@ Handled by the find () function and on main are also available. first, you must 
 
 Screenshot
 
+![login_find](https://user-images.githubusercontent.com/61174498/119257053-ce6faa80-bbed-11eb-90e0-f034e4a0c8cb.png)
+
+
 # H.)
 
 Source Code
@@ -1061,6 +1091,9 @@ Explanation
 running.log is created at the beginning of the code. And we insert the logging () function when the add and delete commands are called.
 
 Screenshot
+
+![After_Deletion_Log](https://user-images.githubusercontent.com/61174498/119257065-dc253000-bbed-11eb-9a3c-a5640abeb3c1.png)
+
 
 Problems
 
